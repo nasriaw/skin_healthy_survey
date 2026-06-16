@@ -47,7 +47,6 @@ surveyor_id = st.sidebar.text_input("ID Surveyor")
 location = st.text_input("Lokasi (GPS/Alamat)", help="Klik tombol Dapatkan Lokasi di atas atau isi manual")
 
 # --- Form Utama ---
-# Memisahkan input kamera agar tidak terbungkus form yang menghambat akses perangkat
 img_source = st.radio("Pilih sumber gambar:", ("Unggah File", "Kamera"))
 
 uploaded_file = None
@@ -87,7 +86,11 @@ if submitted:
         file_name = f"{surveyor_id}_{timestamp}.jpg"
         file_path = os.path.join(save_dir, file_name)
         
-        Image.open(uploaded_file).save(file_path)
+        # Perbaikan Error: Konversi ke RGB sebelum disimpan agar kompatibel dengan format JPEG
+        img = Image.open(uploaded_file)
+        if img.mode in ("RGBA", "P"):
+            img = img.convert("RGB")
+        img.save(file_path, "JPEG")
         
         data = {
             "Timestamp": [datetime.now().strftime("%Y-%m-%d %H:%M:%S")],
